@@ -1,0 +1,28 @@
+@model List<Order>
+@{
+    ViewData["Title"] = "Orders";
+    var store = StoreOptions.Value;
+}
+<div class="admin-toolbar">
+    <h1>Orders</h1>
+    <a class="btn btn-outline" asp-action="ExportCsv">Export CSV</a>
+</div>
+<table class="admin-table">
+    <thead>
+        <tr><th>Order #</th><th>Customer</th><th>Total</th><th>Payment</th><th>Status</th><th>Date</th><th></th></tr>
+    </thead>
+    <tbody>
+    @foreach (var o in Model)
+    {
+        <tr>
+            <td>@o.OrderNumber @(o.IsGift ? "🎁" : "")</td>
+            <td>@o.FullName<br /><small>@o.PhoneNumber</small></td>
+            <td>@store.CurrencySymbol @o.GrandTotal.ToString("N0")</td>
+            <td>@o.PaymentMethod · @(o.Payment?.Status.ToString() ?? "-")</td>
+            <td>@o.Status</td>
+            <td>@o.CreatedAt.ToLocalTime().ToString("g")</td>
+            <td><a asp-action="Details" asp-route-id="@o.Id">View</a></td>
+        </tr>
+    }
+    </tbody>
+</table>

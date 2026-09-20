@@ -1,0 +1,41 @@
+@model List<Coupon>
+@{
+    ViewData["Title"] = "Coupons";
+    var store = StoreOptions.Value;
+}
+<div class="admin-toolbar">
+    <h1>Coupons</h1>
+    <div>
+        <a class="btn btn-ghost" asp-action="Subscribers">Newsletter</a>
+        <a class="btn btn-primary" asp-action="Create">Add Coupon</a>
+    </div>
+</div>
+<table class="admin-table">
+    <thead>
+        <tr><th>Code</th><th>Discount</th><th>Min</th><th>Used</th><th>Active</th><th></th></tr>
+    </thead>
+    <tbody>
+    @foreach (var c in Model)
+    {
+        <tr>
+            <td><strong>@c.Code</strong><br /><small class="muted">@c.Description</small>@(c.FreeShipping ? " · Free shipping" : "")</td>
+            <td>
+                @if (c.PercentOff > 0) { <span>@c.PercentOff%</span> }
+                @if (c.AmountOff > 0) { <span>@store.CurrencySymbol @c.AmountOff.ToString("N0")</span> }
+                @if (c.PercentOff == 0 && c.AmountOff == 0 && !c.FreeShipping) { <span>—</span> }
+                @if (c.FreeShipping && c.PercentOff == 0 && c.AmountOff == 0) { <span>Free ship</span> }
+            </td>
+            <td>@(c.MinimumSubtotal?.ToString("N0") ?? "—")</td>
+            <td>@c.RedemptionCount@(c.MaxRedemptions.HasValue ? $" / {c.MaxRedemptions}" : "")</td>
+            <td>@c.IsActive</td>
+            <td>
+                <form asp-action="ToggleActive" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@c.Id" />
+                    <button type="submit" class="btn btn-ghost btn-sm">@(c.IsActive ? "Deactivate" : "Activate")</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

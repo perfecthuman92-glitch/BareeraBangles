@@ -1,0 +1,99 @@
+@using BareeraBangles.Models
+@using BareeraBangles.Areas.Admin.Controllers
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    var store = StoreOptions.Value;
+    var recent = ViewBag.RecentOrders as List<Order> ?? new List<Order>();
+    var lowStock = ViewBag.LowStock as List<ProductSize> ?? new List<ProductSize>();
+    var top = ViewBag.TopProducts as List<TopProductRow> ?? new List<TopProductRow>();
+}
+<h1>Dashboard</h1>
+<div class="admin-stats">
+    <div><span>Products</span><strong>@ViewBag.ProductCount</strong></div>
+    <div><span>Orders</span><strong>@ViewBag.OrderCount</strong></div>
+    <div><span>Pending</span><strong>@ViewBag.PendingOrders</strong></div>
+    <div><span>Categories</span><strong>@ViewBag.CategoryCount</strong></div>
+</div>
+<div class="admin-stats">
+    <div><span>Paid revenue</span><strong>@store.CurrencySymbol @(((decimal)ViewBag.Revenue).ToString("N0"))</strong></div>
+    <div><span>Last 30 days</span><strong>@store.CurrencySymbol @(((decimal)ViewBag.MonthRevenue).ToString("N0"))</strong></div>
+    <div><span>Subscribers</span><strong>@ViewBag.SubscriberCount</strong></div>
+    <div><span>Pending reviews / alerts</span><strong>@ViewBag.PendingReviews / @ViewBag.StockAlertCount</strong></div>
+</div>
+<p>
+    <a class="btn btn-primary" asp-action="Create" asp-controller="Products">Add Product</a>
+    <a class="btn btn-ghost" asp-controller="Orders" asp-action="ExportCsv">Export Orders</a>
+</p>
+
+<div class="admin-panels">
+    <section>
+        <h2>Recent orders</h2>
+        @if (!recent.Any())
+        {
+            <p class="muted">No orders yet.</p>
+        }
+        else
+        {
+            <table class="admin-table">
+                <thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th></th></tr></thead>
+                <tbody>
+                @foreach (var o in recent)
+                {
+                    <tr>
+                        <td>@o.OrderNumber</td>
+                        <td>@o.FullName</td>
+                        <td>@store.CurrencySymbol @o.GrandTotal.ToString("N0")</td>
+                        <td>@o.Status</td>
+                        <td><a asp-controller="Orders" asp-action="Details" asp-route-id="@o.Id">View</a></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+    </section>
+    <section>
+        <h2>Top products</h2>
+        @if (!top.Any())
+        {
+            <p class="muted">No sales data yet.</p>
+        }
+        else
+        {
+            <table class="admin-table">
+                <thead><tr><th>Product</th><th>Qty</th><th>Revenue</th></tr></thead>
+                <tbody>
+                @foreach (var p in top)
+                {
+                    <tr>
+                        <td>@p.Name</td>
+                        <td>@p.Qty</td>
+                        <td>@store.CurrencySymbol @p.Revenue.ToString("N0")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+        <h2 style="margin-top:1.25rem">Low stock (≤ @ViewBag.LowStockThreshold)</h2>
+        @if (!lowStock.Any())
+        {
+            <p class="muted">All sizes look healthy.</p>
+        }
+        else
+        {
+            <table class="admin-table">
+                <thead><tr><th>Product</th><th>Size</th><th>Qty</th><th></th></tr></thead>
+                <tbody>
+                @foreach (var s in lowStock)
+                {
+                    <tr class="@(s.StockQuantity == 0 ? "row-danger" : "")">
+                        <td>@s.Product?.Name</td>
+                        <td>@s.Size</td>
+                        <td>@s.StockQuantity</td>
+                        <td><a asp-controller="Products" asp-action="Edit" asp-route-id="@s.ProductId">Edit</a></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+    </section>
+</div>

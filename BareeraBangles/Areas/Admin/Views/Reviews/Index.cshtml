@@ -1,0 +1,38 @@
+@model List<ProductReview>
+@{
+    ViewData["Title"] = "Reviews";
+}
+<h1>Pending reviews</h1>
+@if (!Model.Any())
+{
+    <p class="muted">No reviews waiting for approval.</p>
+}
+else
+{
+    <table class="admin-table">
+        <thead><tr><th>Product</th><th>Reviewer</th><th>Rating</th><th>Comment</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var r in Model)
+        {
+            <tr>
+                <td>@r.Product?.Name</td>
+                <td>@r.ReviewerName</td>
+                <td>@r.Rating / 5</td>
+                <td>@r.Comment</td>
+                <td class="actions">
+                    <form asp-action="Approve" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@r.Id" />
+                        <button type="submit" class="linkish">Approve</button>
+                    </form>
+                    <form asp-action="Reject" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@r.Id" />
+                        <button type="submit" class="linkish">Reject</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

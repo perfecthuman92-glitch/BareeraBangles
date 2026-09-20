@@ -1,0 +1,120 @@
+@model ShopViewModel
+@{
+    var store = StoreOptions.Value;
+    ViewData["Title"] = "Shop";
+}
+
+<section class="page-hero">
+    <div class="container">
+        <h1>Shop Bangles</h1>
+        <p>Filter by collection, price, size, and age group.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container shop-layout">
+        <aside class="shop-filters">
+            <form method="get" asp-controller="Product" asp-action="Index" class="filter-form">
+                <label>Search
+                    <input type="search" name="search" value="@Model.Search" placeholder="Search bangles" />
+                </label>
+                <label>Category
+                    <select name="categoryId">
+                        <option value="">All</option>
+                        @foreach (var cat in Model.Categories)
+                        {
+                            if (Model.CategoryId == cat.Id)
+                            {
+                                <option value="@cat.Id" selected>@cat.Name (@cat.Count)</option>
+                            }
+                            else
+                            {
+                                <option value="@cat.Id">@cat.Name (@cat.Count)</option>
+                            }
+                        }
+                    </select>
+                </label>
+                <label>Age Group
+                    <select name="ageGroup">
+                        <option value="">All</option>
+                        <option value="Adult" selected="@(Model.AgeGroup == "Adult" ? "selected" : null)">Adult</option>
+                        <option value="BabyKids" selected="@(Model.AgeGroup == "BabyKids" ? "selected" : null)">Baby &amp; Kids</option>
+                        <option value="Unisex" selected="@(Model.AgeGroup == "Unisex" ? "selected" : null)">Unisex / All Ages</option>
+                    </select>
+                </label>
+                <label>Size
+                    <select name="size">
+                        <option value="">All sizes</option>
+                        @foreach (var size in Model.AvailableSizes)
+                        {
+                            if (Model.Size == size)
+                            {
+                                <option value="@size" selected>@size</option>
+                            }
+                            else
+                            {
+                                <option value="@size">@size</option>
+                            }
+                        }
+                    </select>
+                </label>
+                <div class="filter-row">
+                    <label>Min
+                        <input type="number" name="minPrice" value="@Model.MinPrice" min="0" step="50" />
+                    </label>
+                    <label>Max
+                        <input type="number" name="maxPrice" value="@Model.MaxPrice" min="0" step="50" />
+                    </label>
+                </div>
+                <label>Sort
+                    <select name="sort">
+                        <option value="newest" selected="@(Model.Sort == "newest" ? "selected" : null)">Newest</option>
+                        <option value="price-asc" selected="@(Model.Sort == "price-asc" ? "selected" : null)">Price: Low to High</option>
+                        <option value="price-desc" selected="@(Model.Sort == "price-desc" ? "selected" : null)">Price: High to Low</option>
+                        <option value="name" selected="@(Model.Sort == "name" ? "selected" : null)">Name</option>
+                    </select>
+                </label>
+                <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                <a class="btn btn-ghost w-100" asp-controller="Product" asp-action="Index">Reset</a>
+            </form>
+        </aside>
+
+        <div>
+            <p class="results-meta">@Model.TotalCount products</p>
+            @if (!Model.Products.Any())
+            {
+                <div class="empty-state">
+                    <h2>No bangles match these filters</h2>
+                    <a class="btn btn-outline" asp-controller="Product" asp-action="Index">Clear filters</a>
+                </div>
+            }
+            else
+            {
+                <div class="product-grid">
+                    @foreach (var product in Model.Products)
+                    {
+                        <partial name="_ProductCard" model="product" />
+                    }
+                </div>
+                @if (Model.TotalPages > 1)
+                {
+                    <nav class="pagination" aria-label="Shop pagination">
+                        @for (var i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <a class="@(i == Model.Page ? "active" : "")"
+                               asp-controller="Product" asp-action="Index"
+                               asp-route-page="@i"
+                               asp-route-search="@Model.Search"
+                               asp-route-categoryId="@Model.CategoryId"
+                               asp-route-minPrice="@Model.MinPrice"
+                               asp-route-maxPrice="@Model.MaxPrice"
+                               asp-route-size="@Model.Size"
+                               asp-route-ageGroup="@Model.AgeGroup"
+                               asp-route-sort="@Model.Sort">@i</a>
+                        }
+                    </nav>
+                }
+            }
+        </div>
+    </div>
+</section>

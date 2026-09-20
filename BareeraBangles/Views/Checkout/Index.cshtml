@@ -1,0 +1,134 @@
+@model CheckoutViewModel
+@{
+    var store = StoreOptions.Value;
+    ViewData["Title"] = "Checkout";
+}
+
+<section class="page-hero">
+    <div class="container">
+        <h1>Checkout</h1>
+        <p>Enter shipping details and choose a payment method.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container checkout-layout">
+        <form asp-action="Index" method="post" class="checkout-form" novalidate>
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <h2>Customer Information</h2>
+            <div class="form-grid">
+                <div>
+                    <label asp-for="FullName"></label>
+                    <input asp-for="FullName" />
+                    <span asp-validation-for="FullName"></span>
+                </div>
+                <div>
+                    <label asp-for="PhoneNumber"></label>
+                    <input asp-for="PhoneNumber" />
+                    <span asp-validation-for="PhoneNumber"></span>
+                </div>
+                <div class="full">
+                    <label asp-for="Email"></label>
+                    <input asp-for="Email" />
+                    <span asp-validation-for="Email"></span>
+                </div>
+                <div class="full">
+                    <label asp-for="ShippingAddress"></label>
+                    <textarea asp-for="ShippingAddress" rows="3"></textarea>
+                    <span asp-validation-for="ShippingAddress"></span>
+                </div>
+                <div>
+                    <label asp-for="City"></label>
+                    <input asp-for="City" />
+                    <span asp-validation-for="City"></span>
+                </div>
+                <div>
+                    <label asp-for="PostalCode"></label>
+                    <input asp-for="PostalCode" />
+                    <span asp-validation-for="PostalCode"></span>
+                </div>
+                <div class="full">
+                    <label asp-for="OrderNotes"></label>
+                    <textarea asp-for="OrderNotes" rows="3"></textarea>
+                </div>
+            </div>
+
+            <h2>Coupon</h2>
+            <div class="coupon-row">
+                <input asp-for="CouponCode" placeholder="e.g. BAREERA10" />
+                <button type="submit" class="btn btn-outline" formaction="@Url.Action("ApplyCoupon")" formmethod="post">Apply</button>
+            </div>
+            <span asp-validation-for="CouponCode"></span>
+            <p class="muted">Free shipping on orders of @store.CurrencySymbol @Model.FreeShippingThreshold.ToString("N0")+ (after discount).</p>
+
+            <h2>Gift options</h2>
+            <label class="payment-option">
+                <input asp-for="IsGift" />
+                <span>
+                    <strong>This order is a gift</strong>
+                    <small>We’ll skip prices on packing notes when possible.</small>
+                </span>
+            </label>
+            <div class="full" style="margin: .75rem 0 1.25rem;">
+                <label asp-for="GiftMessage"></label>
+                <textarea asp-for="GiftMessage" rows="2" placeholder="Optional message for the recipient"></textarea>
+            </div>
+
+            <h2>Payment Method</h2>
+            <div class="payment-options">
+                <label class="payment-option">
+                    <input type="radio" asp-for="PaymentMethod" value="JazzCash" checked="@(Model.PaymentMethod == PaymentMethod.JazzCash)" />
+                    <span>
+                        <strong>JazzCash</strong>
+                        <small>Pay via JazzCash wallet / mobile account through the official gateway.</small>
+                    </span>
+                </label>
+                <label class="payment-option">
+                    <input type="radio" asp-for="PaymentMethod" value="BankCard" checked="@(Model.PaymentMethod == PaymentMethod.BankCard)" />
+                    <span>
+                        <strong>Bank Card</strong>
+                        <small>Secure hosted card checkout. We never store card numbers or CVV.</small>
+                    </span>
+                </label>
+                <label class="payment-option">
+                    <input type="radio" asp-for="PaymentMethod" value="CashOnDelivery" checked="@(Model.PaymentMethod == PaymentMethod.CashOnDelivery)" />
+                    <span>
+                        <strong>Cash on Delivery</strong>
+                        <small>Pay the courier in cash when your order arrives.</small>
+                    </span>
+                </label>
+            </div>
+
+            <input type="hidden" asp-for="ShippingFee" />
+            <input type="hidden" asp-for="DiscountAmount" />
+            <button type="submit" class="btn btn-primary btn-lg" id="placeOrderBtn">Place Order</button>
+        </form>
+
+        <aside class="cart-summary sticky-summary">
+            <h2>Order Summary</h2>
+            @foreach (var item in Model.Cart.Items)
+            {
+                <div class="summary-line">
+                    <span>@item.ProductName · @item.SelectedSize × @item.Quantity</span>
+                    <span>@store.CurrencySymbol @item.Subtotal.ToString("N0")</span>
+                </div>
+            }
+            <div class="summary-row"><span>Subtotal</span><span>@store.CurrencySymbol @Model.Cart.GrandTotal.ToString("N0")</span></div>
+            @if (Model.DiscountAmount > 0)
+            {
+                <div class="summary-row"><span>Discount @(Model.CouponCode)</span><span>-@store.CurrencySymbol @Model.DiscountAmount.ToString("N0")</span></div>
+            }
+            <div class="summary-row"><span>Shipping</span><span>@(Model.ShippingFee == 0 ? "Free" : $"{store.CurrencySymbol} {Model.ShippingFee:N0}")</span></div>
+            <div class="summary-row total">
+                <span>Grand Total</span>
+                <span>@store.CurrencySymbol @Model.GrandTotal.ToString("N0")</span>
+            </div>
+        </aside>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,50 @@
+@model OrderViewModel
+@{
+    var store = StoreOptions.Value;
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Receipt @Model.OrderNumber</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        body { background: #fff; }
+        .receipt { max-width: 720px; margin: 2rem auto; padding: 2rem; }
+        @@media print {
+            .no-print { display: none !important; }
+            .receipt { box-shadow: none; border: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt confirm-card">
+        <div class="no-print action-row">
+            <button type="button" class="btn btn-primary" onclick="window.print()">Print</button>
+            <a class="btn btn-ghost" href="javascript:history.back()">Back</a>
+        </div>
+        <p class="eyebrow">@store.StoreName</p>
+        <h1>Receipt</h1>
+        <p><strong>@Model.OrderNumber</strong> · @Model.CreatedAt.ToLocalTime().ToString("g")</p>
+        <p>@Model.FullName<br />@Model.ShippingAddress<br />@Model.City @Model.PostalCode<br />@Model.PhoneNumber</p>
+        <ul class="confirm-items">
+            @foreach (var item in Model.Items)
+            {
+                <li>
+                    <span>@item.ProductName · @item.SelectedSize × @item.Quantity</span>
+                    <span>@store.CurrencySymbol @item.TotalPrice.ToString("N0")</span>
+                </li>
+            }
+        </ul>
+        <div class="summary-row"><span>Subtotal</span><span>@store.CurrencySymbol @Model.Subtotal.ToString("N0")</span></div>
+        @if (Model.DiscountAmount > 0)
+        {
+            <div class="summary-row"><span>Discount @Model.CouponCode</span><span>-@store.CurrencySymbol @Model.DiscountAmount.ToString("N0")</span></div>
+        }
+        <div class="summary-row"><span>Shipping</span><span>@store.CurrencySymbol @Model.ShippingFee.ToString("N0")</span></div>
+        <div class="summary-row total"><span>Grand Total</span><span>@store.CurrencySymbol @Model.GrandTotal.ToString("N0")</span></div>
+        <p class="muted">Status: @Model.Status · Payment: @Model.PaymentMethod / @Model.PaymentStatus</p>
+    </div>
+</body>
+</html>

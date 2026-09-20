@@ -1,0 +1,30 @@
+@model ProductDetailsViewModel
+@{
+    var store = StoreOptions.Value;
+    var primary = Model.Images.FirstOrDefault(i => i.IsPrimary) ?? Model.Images.FirstOrDefault();
+}
+<div class="quick-view">
+    <div class="quick-view-media">
+        <img src="@(primary?.ImageUrl ?? "/images/products/placeholder.svg")" alt="@Model.Name" />
+    </div>
+    <div class="quick-view-body">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <p class="eyebrow">@Model.CategoryName</p>
+        <h2>@Model.Name</h2>
+        <div class="price-row">
+            <span class="price">@store.CurrencySymbol @Model.EffectivePrice.ToString("N0")</span>
+            @if (Model.HasDiscount)
+            {
+                <span class="price-was">@store.CurrencySymbol @Model.Price.ToString("N0")</span>
+            }
+        </div>
+        <p>@Model.Description</p>
+        <p class="size-chips">
+            @foreach (var s in Model.Sizes.Where(x => x.IsActive && x.StockQuantity > 0).Take(8))
+            {
+                <span>@s.Size</span>
+            }
+        </p>
+        <a class="btn btn-primary" asp-controller="Product" asp-action="Details" asp-route-slug="@Model.Slug">View &amp; Select Size</a>
+    </div>
+</div>

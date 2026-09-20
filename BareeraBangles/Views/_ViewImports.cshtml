@@ -1,0 +1,9 @@
+﻿@using BareeraBangles
+@using BareeraBangles.Models
+@using BareeraBangles.ViewModels
+@using BareeraBangles.Configuration
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.Extensions.Options
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@inject IOptions<StoreSettings> StoreOptions
+@inject BareeraBangles.Services.IWhatsAppService WhatsApp

@@ -1,0 +1,43 @@
+@{
+    ViewData["Title"] = "FAQ";
+    var store = StoreOptions.Value;
+}
+<section class="page-hero">
+    <div class="container">
+        <h1>FAQ</h1>
+        <p>Quick answers about sizing, orders, and payments.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container narrow faq-list">
+        <details open>
+            <summary>How do I choose my bangle size?</summary>
+            <p>Adult sizes use inner diameter (2.2–2.8). Baby/kids use age labels that you can configure per product. See our <a asp-action="SizeGuide">Size Guide</a> or message us on WhatsApp.</p>
+        </details>
+        <details>
+            <summary>Can I order on WhatsApp instead of checkout?</summary>
+            <p>Yes. Use <strong>Order on WhatsApp</strong> from any product, cart, or the floating chat button. Your selected size and quantity are prefilled when available.</p>
+        </details>
+        <details>
+            <summary>Which payment methods do you support?</summary>
+            <p>JazzCash and bank card via hosted payment providers. We never store card numbers or CVV on our servers.</p>
+        </details>
+        <details>
+            <summary>Do you offer free shipping?</summary>
+            <p>Yes — free shipping applies when your order reaches @store.CurrencySymbol @store.FreeShippingThreshold.ToString("N0") after discounts.</p>
+        </details>
+        <details>
+            <summary>How do I track my order?</summary>
+            <p>Use <a asp-controller="Order" asp-action="Track">Track Order</a> with your order number and the phone used at checkout.</p>
+        </details>
+        <details>
+            <summary>A size is out of stock — can I get notified?</summary>
+            <p>On the product page, enter your email in the stock alert form for that size. We’ll notify you when it’s available again.</p>
+        </details>
+        <details>
+            <summary>Can I send an order as a gift?</summary>
+            <p>Yes. At checkout, tick <strong>This order is a gift</strong> and add an optional gift message.</p>
+        </details>
+    </div>
+</section>

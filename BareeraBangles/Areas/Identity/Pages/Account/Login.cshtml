@@ -1,0 +1,41 @@
+@page
+@model BareeraBangles.Areas.Identity.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<section class="page-hero">
+    <div class="container">
+        <h1>Welcome back</h1>
+        <p>Sign in to manage your Bareera account.</p>
+    </div>
+</section>
+
+<div class="account-wrap">
+    <form id="account" method="post">
+        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+        <div>
+            <label asp-for="Input.Email"></label>
+            <input asp-for="Input.Email" autocomplete="username" />
+            <span asp-validation-for="Input.Email"></span>
+        </div>
+        <div>
+            <label asp-for="Input.Password"></label>
+            <input asp-for="Input.Password" autocomplete="current-password" />
+            <span asp-validation-for="Input.Password"></span>
+        </div>
+        <div class="mb-3">
+            <label>
+                <input asp-for="Input.RememberMe" />
+                @Html.DisplayNameFor(m => m.Input.RememberMe)
+            </label>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Log in</button>
+        <p class="mt-3 muted">Admin demo: admin@bareerabangles.com</p>
+        <p><a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Create an account</a></p>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

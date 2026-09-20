@@ -1,0 +1,98 @@
+@model List<ProductCardViewModel>
+@{
+    var store = StoreOptions.Value;
+    ViewData["Title"] = "Compare";
+}
+<section class="page-hero">
+    <div class="container">
+        <h1>Compare</h1>
+        <p>Compare up to 3 bangles side by side.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        @if (!Model.Any())
+        {
+            <div class="empty-state">
+                <h2>Nothing to compare yet</h2>
+                <p class="muted">Use the Compare button on product cards.</p>
+                <a class="btn btn-primary" asp-controller="Product" asp-action="Index">Browse shop</a>
+            </div>
+        }
+        else
+        {
+            <div class="compare-actions">
+                <form asp-action="Clear" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-ghost btn-sm">Clear all</button>
+                </form>
+            </div>
+            <div class="compare-table-wrap">
+                <table class="compare-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            @foreach (var p in Model)
+                            {
+                                <th>
+                                    <img src="@p.ImageUrl" alt="@p.Name" />
+                                    <a asp-controller="Product" asp-action="Details" asp-route-slug="@p.Slug">@p.Name</a>
+                                    <form asp-action="Remove" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="productId" value="@p.Id" />
+                                        <button type="submit" class="btn btn-ghost btn-sm">Remove</button>
+                                    </form>
+                                </th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th>Category</th>
+                            @foreach (var p in Model) { <td>@p.CategoryName</td> }
+                        </tr>
+                        <tr>
+                            <th>Age group</th>
+                            @foreach (var p in Model) { <td>@p.AgeGroup</td> }
+                        </tr>
+                        <tr>
+                            <th>Price</th>
+                            @foreach (var p in Model)
+                            {
+                                <td>
+                                    @store.CurrencySymbol @p.EffectivePrice.ToString("N0")
+                                    @if (p.HasDiscount)
+                                    {
+                                        <div class="price-was">@store.CurrencySymbol @p.Price.ToString("N0")</div>
+                                    }
+                                </td>
+                            }
+                        </tr>
+                        <tr>
+                            <th>Sizes</th>
+                            @foreach (var p in Model)
+                            {
+                                <td>@(string.Join(", ", p.AvailableSizes.Take(8)))</td>
+                            }
+                        </tr>
+                        <tr>
+                            <th>Stock</th>
+                            @foreach (var p in Model)
+                            {
+                                <td>@(p.InStock ? "In stock" : "Out of stock")</td>
+                            }
+                        </tr>
+                        <tr>
+                            <th></th>
+                            @foreach (var p in Model)
+                            {
+                                <td><a class="btn btn-primary btn-sm" asp-controller="Product" asp-action="Details" asp-route-slug="@p.Slug">View</a></td>
+                            }
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</section>

@@ -1,0 +1,40 @@
+@model List<ProductCardViewModel>
+@{
+    var store = StoreOptions.Value;
+    ViewData["Title"] = "Wishlist";
+}
+
+<section class="page-hero">
+    <div class="container">
+        <h1>Wishlist</h1>
+        <p>@Model.Count saved piece(s)</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        @if (!Model.Any())
+        {
+            <div class="empty-state">
+                <h2>Your wishlist is empty</h2>
+                <a class="btn btn-primary" asp-controller="Product" asp-action="Index">Browse shop</a>
+            </div>
+        }
+        else
+        {
+            <div class="product-grid">
+                @foreach (var product in Model)
+                {
+                    <div class="wishlist-item">
+                        <partial name="_ProductCard" model="product" />
+                        <form asp-action="Remove" method="post" class="wishlist-remove">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="productId" value="@product.Id" />
+                            <button type="submit" class="btn btn-ghost btn-sm">Remove</button>
+                        </form>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</section>

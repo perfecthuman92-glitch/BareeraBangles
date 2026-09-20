@@ -1,0 +1,52 @@
+@model Order
+@{
+    ViewData["Title"] = $"Order {Model.OrderNumber}";
+    var store = StoreOptions.Value;
+}
+<h1>Order @Model.OrderNumber</h1>
+<div class="admin-order">
+    <div>
+        <p><strong>Customer:</strong> @Model.FullName · @Model.PhoneNumber · @Model.Email</p>
+        <p><strong>Ship to:</strong> @Model.ShippingAddress, @Model.City @Model.PostalCode</p>
+        <p><strong>Notes:</strong> @(Model.OrderNotes ?? "—")</p>
+        @if (Model.IsGift)
+        {
+            <p><strong>Gift:</strong> Yes — @(Model.GiftMessage ?? "No message")</p>
+        }
+        <p><strong>Payment:</strong> @Model.PaymentMethod · @(Model.Payment?.Status) · @(Model.Payment?.ProviderMessage)</p>
+        <form method="post" asp-action="UpdateStatus" class="status-form">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.Id" />
+            <label>Update status
+                <select name="status" asp-for="Status" asp-items="Html.GetEnumSelectList<OrderStatus>()"></select>
+            </label>
+            <button type="submit" class="btn btn-primary">Save Status</button>
+        </form>
+        <form method="post" asp-action="SaveAdminNotes" class="admin-form" style="margin-top:1rem">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.Id" />
+            <label>Admin notes (internal)
+                <textarea name="adminNotes" rows="3">@Model.AdminNotes</textarea>
+            </label>
+            <button type="submit" class="btn btn-ghost">Save notes</button>
+        </form>
+    </div>
+    <table class="admin-table">
+        <thead><tr><th>Product</th><th>Size</th><th>Qty</th><th>Unit</th><th>Total</th></tr></thead>
+        <tbody>
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td>@item.ProductName</td>
+                <td>@item.SelectedSize</td>
+                <td>@item.Quantity</td>
+                <td>@store.CurrencySymbol @item.UnitPrice.ToString("N0")</td>
+                <td>@store.CurrencySymbol @item.TotalPrice.ToString("N0")</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    <p><strong>Grand Total:</strong> @store.CurrencySymbol @Model.GrandTotal.ToString("N0")
+   <small class="muted">(Subtotal @Model.Subtotal.ToString("N0") + Shipping @Model.ShippingFee.ToString("N0"))</small></p>
+<p><a class="btn btn-outline" asp-area="" asp-controller="Order" asp-action="Receipt" asp-route-orderNumber="@Model.OrderNumber" target="_blank">Print receipt</a></p>
+</div>

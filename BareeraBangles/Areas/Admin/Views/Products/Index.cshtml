@@ -1,0 +1,45 @@
+@model List<AdminProductListItem>
+@{
+    ViewData["Title"] = "Products";
+    var store = StoreOptions.Value;
+}
+<div class="admin-toolbar">
+    <h1>Products</h1>
+    <a class="btn btn-primary" asp-action="Create">Add Product</a>
+</div>
+<table class="admin-table">
+    <thead>
+        <tr>
+            <th>Name</th><th>Category</th><th>Price</th><th>Sizes</th><th>Stock</th><th>Status</th><th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var p in Model)
+    {
+        <tr>
+            <td>@p.Name @(p.IsFeatured ? "★" : "")</td>
+            <td>@p.CategoryName</td>
+            <td>
+                @store.CurrencySymbol @((p.DiscountPrice ?? p.Price).ToString("N0"))
+                @if (p.DiscountPrice.HasValue)
+                {
+                    <small class="muted">was @p.Price.ToString("N0")</small>
+                }
+            </td>
+            <td>@p.SizeCount</td>
+            <td>@p.StockTotal</td>
+            <td>@(p.IsActive ? "Active" : "Inactive")</td>
+            <td class="actions">
+                <a asp-action="Edit" asp-route-id="@p.Id">Edit</a>
+                @if (p.IsActive)
+                {
+                    <form asp-action="Deactivate" asp-route-id="@p.Id" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="linkish">Deactivate</button>
+                    </form>
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

@@ -1,0 +1,22 @@
+@model Coupon
+@{
+    ViewData["Title"] = "Add Coupon";
+}
+<h1>Add Coupon</h1>
+<form method="post" class="admin-form">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="All" class="validation-summary"></div>
+    <div class="form-grid">
+        <div><label asp-for="Code"></label><input asp-for="Code" placeholder="BAREERA10" /></div>
+        <div class="full"><label asp-for="Description"></label><input asp-for="Description" /></div>
+        <div><label asp-for="PercentOff">Percent off</label><input asp-for="PercentOff" /></div>
+        <div><label asp-for="AmountOff">Amount off</label><input asp-for="AmountOff" /></div>
+        <div><label asp-for="MinimumSubtotal"></label><input asp-for="MinimumSubtotal" /></div>
+        <div><label asp-for="MaxRedemptions"></label><input asp-for="MaxRedemptions" /></div>
+        <div><label asp-for="ExpiresAt"></label><input asp-for="ExpiresAt" type="date" /></div>
+        <div><label><input asp-for="IsActive" /> Active</label></div>
+        <div><label><input asp-for="FreeShipping" /> Free shipping</label></div>
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a class="btn btn-ghost" asp-action="Index">Cancel</a>
+</form>

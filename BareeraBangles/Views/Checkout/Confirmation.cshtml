@@ -1,0 +1,61 @@
+@model OrderViewModel
+@{
+    var store = StoreOptions.Value;
+    ViewData["Title"] = "Order Confirmation";
+}
+
+<section class="page-hero">
+    <div class="container">
+        <h1>Thank you</h1>
+        <p>Your order has been placed.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container narrow">
+        <div class="confirm-card">
+            <p class="eyebrow">Order number</p>
+            <h2>@Model.OrderNumber</h2>
+            <div class="confirm-meta">
+                <div><span>Status</span><strong>@Model.Status</strong></div>
+                <div><span>Payment</span><strong>@Model.PaymentMethod · @(Model.PaymentStatus?.ToString() ?? "Pending")</strong></div>
+                <div><span>Total</span><strong>@store.CurrencySymbol @Model.GrandTotal.ToString("N0")</strong></div>
+            </div>
+            <div class="summary-row"><span>Subtotal</span><span>@store.CurrencySymbol @Model.Subtotal.ToString("N0")</span></div>
+            @if (Model.DiscountAmount > 0)
+            {
+                <div class="summary-row"><span>Discount @Model.CouponCode</span><span>-@store.CurrencySymbol @Model.DiscountAmount.ToString("N0")</span></div>
+            }
+            <div class="summary-row"><span>Shipping</span><span>@store.CurrencySymbol @Model.ShippingFee.ToString("N0")</span></div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.PaymentMessage))
+            {
+                <div class="notice">@Model.PaymentMessage</div>
+            }
+
+            <h3>Items</h3>
+            <ul class="confirm-items">
+                @foreach (var item in Model.Items)
+                {
+                    <li>
+                        <span>@item.ProductName · Size @item.SelectedSize × @item.Quantity</span>
+                        <span>@store.CurrencySymbol @item.TotalPrice.ToString("N0")</span>
+                    </li>
+                }
+            </ul>
+
+            <h3>Shipping</h3>
+            <p>@Model.FullName<br />@Model.ShippingAddress<br />@Model.City @Model.PostalCode<br />@Model.PhoneNumber</p>
+            @if (Model.IsGift)
+            {
+                <p><strong>Gift order</strong>@(string.IsNullOrWhiteSpace(Model.GiftMessage) ? "" : $": {Model.GiftMessage}")</p>
+            }
+
+            <div class="action-row">
+                <a class="btn btn-primary" asp-controller="Product" asp-action="Index">Continue Shopping</a>
+                <a class="btn btn-outline" asp-controller="Order" asp-action="Receipt" asp-route-orderNumber="@Model.OrderNumber" asp-route-phone="@Model.PhoneNumber" target="_blank">Print receipt</a>
+                <a class="btn btn-whatsapp" asp-controller="WhatsApp" asp-action="Chat" target="_blank" rel="noopener">Chat on WhatsApp</a>
+            </div>
+        </div>
+    </div>
+</section>

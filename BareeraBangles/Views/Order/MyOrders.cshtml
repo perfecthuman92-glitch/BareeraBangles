@@ -1,0 +1,49 @@
+@model List<BareeraBangles.ViewModels.OrderViewModel>
+@{
+    var store = StoreOptions.Value;
+    ViewData["Title"] = "My Orders";
+}
+<section class="page-hero">
+    <div class="container">
+        <h1>My Orders</h1>
+        <p>Orders placed while signed in to this account.</p>
+    </div>
+</section>
+<section class="section">
+    <div class="container">
+        @if (!Model.Any())
+        {
+            <p class="muted">No orders yet. <a asp-controller="Product" asp-action="Index">Browse the shop</a>.</p>
+        }
+        else
+        {
+            <table class="admin-table store-orders-table">
+                <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Total</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var o in Model)
+                {
+                    <tr>
+                        <td><strong>@o.OrderNumber</strong></td>
+                        <td>@o.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</td>
+                        <td>@o.Status</td>
+                        <td>@store.CurrencySymbol @o.GrandTotal.ToString("N0")</td>
+                        <td>
+                            <a asp-action="Details" asp-route-orderNumber="@o.OrderNumber">View</a>
+                            ·
+                            <a asp-action="Receipt" asp-route-orderNumber="@o.OrderNumber">Receipt</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</section>

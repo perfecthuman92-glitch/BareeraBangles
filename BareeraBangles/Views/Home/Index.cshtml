@@ -1,0 +1,146 @@
+﻿@model HomeViewModel
+@{
+    var store = StoreOptions.Value;
+    ViewData["Title"] = "Home";
+}
+
+<section class="hero">
+    <div class="hero-media" aria-hidden="true">
+        <div class="hero-glow"></div>
+        <img src="/images/hero-bangles.svg" alt="" />
+    </div>
+    <div class="container hero-content">
+        <p class="hero-brand reveal">@store.StoreName</p>
+        <h1 class="reveal delay-1">@store.Tagline</h1>
+        <p class="hero-lead reveal delay-2">Premium adult and baby bangles with configurable sizes, polished finishes, and effortless WhatsApp ordering.</p>
+        <div class="hero-ctas reveal delay-3">
+            <a class="btn btn-primary btn-lg" asp-controller="Product" asp-action="Index">Shop Now</a>
+            <a class="btn btn-outline btn-lg" asp-controller="WhatsApp" asp-action="Chat" target="_blank" rel="noopener">Order on WhatsApp</a>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section-head">
+            <h2>Featured Pieces</h2>
+            <p>New and popular designs chosen for everyday wear and celebration.</p>
+        </div>
+        <div class="product-grid">
+            @foreach (var product in Model.FeaturedProducts)
+            {
+                <partial name="_ProductCard" model="product" />
+            }
+        </div>
+        <div class="section-cta">
+            <a class="btn btn-outline" asp-controller="Product" asp-action="Index">View All</a>
+        </div>
+    </div>
+</section>
+
+<section class="section section-soft">
+    <div class="container">
+        <div class="section-head">
+            <h2>Collections</h2>
+            <p>Find the stack that matches your moment.</p>
+        </div>
+        <div class="category-grid">
+            @foreach (var cat in Model.Categories)
+            {
+                <a class="category-tile" asp-controller="Product" asp-action="Index" asp-route-categoryId="@cat.Id">
+                    <img src="@(cat.ImageUrl ?? "/images/categories/gold.svg")" alt="" />
+                    <div>
+                        <h3>@cat.Name</h3>
+                        <p>@cat.Description</p>
+                    </div>
+                </a>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section-head">
+            <h2>Why Bareera</h2>
+            <p>Thoughtful details that make ordering feel easy and trustworthy.</p>
+        </div>
+        <div class="why-grid">
+            <div class="why-item"><h3>Premium Quality</h3><p>Polished finishes and balanced weight for all-day comfort.</p></div>
+            <div class="why-item"><h3>Multiple Sizes</h3><p>Adult diameters and baby/kids age labels, fully configurable.</p></div>
+            <div class="why-item"><h3>Secure Payment</h3><p>JazzCash, hosted card checkout, or cash on delivery — your choice at checkout.</p></div>
+            <div class="why-item"><h3>Easy Ordering</h3><p>Select size, add to cart, and checkout in a few clear steps.</p></div>
+            <div class="why-item"><h3>WhatsApp Support</h3><p>Chat with us instantly for sizing help or custom orders.</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="promo-band">
+    <div class="container promo-inner">
+        <h2>Find Your Perfect Pair</h2>
+        <p>From newborn keepsakes to bridal stacks — sized for the wrist that will wear them.</p>
+        <a class="btn btn-primary" asp-controller="Product" asp-action="Index" asp-route-ageGroup="BabyKids">Explore Kids Sizes</a>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section-head">
+            <h2>Loved by Customers</h2>
+            <p>Notes from recent buyers.</p>
+        </div>
+        <div class="testimonial-grid">
+            @if (Model.Testimonials.Any())
+            {
+                @foreach (var t in Model.Testimonials.Take(3))
+                {
+                    <blockquote>
+                        <p>“@t.Quote”</p>
+                        <cite>— @t.Author@(string.IsNullOrEmpty(t.ProductName) ? "" : $", on {t.ProductName}")</cite>
+                    </blockquote>
+                }
+            }
+            else
+            {
+                <blockquote><p>“The bridal set arrived beautifully packed and the 2.6 size fit perfectly.”</p><cite>— Ayesha, Lahore</cite></blockquote>
+                <blockquote><p>“Ordered newborn bangles on WhatsApp and got clear size guidance within minutes.”</p><cite>— Sara, Karachi</cite></blockquote>
+                <blockquote><p>“Daily wear pair feels light and the finish still looks fresh after weeks.”</p><cite>— Hira, Islamabad</cite></blockquote>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="section section-soft">
+    <div class="container">
+        <div class="section-head">
+            <h2>Gallery</h2>
+            <p>A glimpse of the collection.</p>
+        </div>
+        <div class="gallery-grid">
+            @foreach (var product in Model.GalleryProducts)
+            {
+                <a asp-controller="Product" asp-action="Details" asp-route-slug="@product.Slug" class="gallery-item">
+                    <img src="@product.ImageUrl" alt="@product.Name" loading="lazy" />
+                </a>
+            }
+        </div>
+    </div>
+</section>
+
+@if (Model.RecentlyViewed.Any())
+{
+    <section class="section">
+        <div class="container">
+            <div class="section-head">
+                <h2>Recently Viewed</h2>
+                <p>Pick up where you left off.</p>
+            </div>
+            <div class="product-grid">
+                @foreach (var product in Model.RecentlyViewed)
+                {
+                    <partial name="_ProductCard" model="product" />
+                }
+            </div>
+        </div>
+    </section>
+}

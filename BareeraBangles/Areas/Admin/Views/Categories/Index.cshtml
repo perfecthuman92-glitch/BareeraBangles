@@ -1,0 +1,22 @@
+@model List<Category>
+@{
+    ViewData["Title"] = "Categories";
+}
+<div class="admin-toolbar">
+    <h1>Categories</h1>
+    <a class="btn btn-primary" asp-action="Create">Add Category</a>
+</div>
+<table class="admin-table">
+    <thead><tr><th>Name</th><th>Order</th><th>Active</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var c in Model)
+    {
+        <tr>
+            <td>@c.Name</td>
+            <td>@c.DisplayOrder</td>
+            <td>@c.IsActive</td>
+            <td><a asp-action="Edit" asp-route-id="@c.Id">Edit</a></td>
+        </tr>
+    }
+    </tbody>
+</table>

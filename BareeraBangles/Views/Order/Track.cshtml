@@ -1,0 +1,63 @@
+@model BareeraBangles.Controllers.TrackOrderViewModel
+@{
+    var store = StoreOptions.Value;
+    ViewData["Title"] = "Track Order";
+}
+
+<section class="page-hero">
+    <div class="container">
+        <h1>Track Order</h1>
+        <p>Enter your order number and the phone used at checkout.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container narrow">
+        <form method="post" class="confirm-card track-form" asp-action="Track">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+            <div class="form-grid">
+                <div class="full">
+                    <label asp-for="OrderNumber"></label>
+                    <input asp-for="OrderNumber" placeholder="BB-20260919-XXXXXX" />
+                    <span asp-validation-for="OrderNumber"></span>
+                </div>
+                <div class="full">
+                    <label asp-for="PhoneNumber"></label>
+                    <input asp-for="PhoneNumber" placeholder="03XXXXXXXXX" />
+                    <span asp-validation-for="PhoneNumber"></span>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Track</button>
+        </form>
+
+        @if (Model.Order is not null)
+        {
+            var order = Model.Order;
+            <div class="confirm-card track-result">
+                <p class="eyebrow">Order found</p>
+                <h2>@order.OrderNumber</h2>
+                <div class="confirm-meta">
+                    <div><span>Status</span><strong>@order.Status</strong></div>
+                    <div><span>Payment</span><strong>@order.PaymentMethod · @order.PaymentStatus</strong></div>
+                    <div><span>Total</span><strong>@store.CurrencySymbol @order.GrandTotal.ToString("N0")</strong></div>
+                </div>
+                <ul class="confirm-items">
+                    @foreach (var item in order.Items)
+                    {
+                        <li>
+                            <span>@item.ProductName · @item.SelectedSize × @item.Quantity</span>
+                            <span>@store.CurrencySymbol @item.TotalPrice.ToString("N0")</span>
+                        </li>
+                    }
+                </ul>
+                <p class="muted">Placed @order.CreatedAt.ToLocalTime().ToString("g") · Ships to @order.City</p>
+                <a class="btn btn-outline" asp-controller="Order" asp-action="Receipt" asp-route-orderNumber="@order.OrderNumber" asp-route-phone="@Model.PhoneNumber" target="_blank">Print receipt</a>
+            </div>
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

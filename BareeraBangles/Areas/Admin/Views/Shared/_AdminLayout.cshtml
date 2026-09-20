@@ -1,0 +1,45 @@
+@{
+    var store = StoreOptions.Value;
+    var title = ViewData["Title"] as string ?? "Admin";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@title · Admin · @store.StoreName</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Sora:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+</head>
+<body class="admin-body">
+    <aside class="admin-sidebar">
+        <a class="brand" asp-area="" asp-controller="Home" asp-action="Index">@store.StoreName</a>
+        <nav>
+            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+            <a asp-area="Admin" asp-controller="Products" asp-action="Index">Products</a>
+            <a asp-area="Admin" asp-controller="Categories" asp-action="Index">Categories</a>
+            <a asp-area="Admin" asp-controller="Orders" asp-action="Index">Orders</a>
+            <a asp-area="Admin" asp-controller="Coupons" asp-action="Index">Coupons</a>
+            <a asp-area="Admin" asp-controller="Coupons" asp-action="Subscribers">Newsletter</a>
+            <a asp-area="Admin" asp-controller="Reviews" asp-action="Index">Reviews</a>
+            <a asp-area="Admin" asp-controller="StockAlerts" asp-action="Index">Stock Alerts</a>
+            <a asp-area="" asp-controller="Home" asp-action="Index">View Store</a>
+        </nav>
+    </aside>
+    <div class="admin-main">
+        @if (TempData["Success"] != null)
+        {
+            <div class="flash flash-success">@TempData["Success"]</div>
+        }
+        @RenderBody()
+    </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/admin.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,31 @@
+@model OrderViewModel
+@{
+    ViewData["Title"] = "Redirecting to JazzCash";
+    var fields = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(ViewBag.FieldsJson as string ?? "{}")
+                 ?? new Dictionary<string, string>();
+    var paymentUrl = ViewBag.PaymentUrl as string;
+}
+
+<section class="section">
+    <div class="container narrow">
+        <div class="confirm-card">
+            <h1>Redirecting to JazzCash…</h1>
+            <p>Order <strong>@Model.OrderNumber</strong>. If you are not redirected automatically, use the button below.</p>
+            @if (!string.IsNullOrEmpty(paymentUrl))
+            {
+                <form id="jazzForm" method="post" action="@paymentUrl">
+                    @foreach (var field in fields)
+                    {
+                        <input type="hidden" name="@field.Key" value="@field.Value" />
+                    }
+                    <button type="submit" class="btn btn-primary">Continue to JazzCash</button>
+                </form>
+                <script>document.getElementById('jazzForm').submit();</script>
+            }
+            else
+            {
+                <a class="btn btn-outline" asp-action="Confirmation" asp-route-orderNumber="@Model.OrderNumber">Back to confirmation</a>
+            }
+        </div>
+    </div>
+</section>

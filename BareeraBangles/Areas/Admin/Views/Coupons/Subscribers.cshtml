@@ -1,0 +1,25 @@
+@model List<NewsletterSubscriber>
+@{
+    ViewData["Title"] = "Newsletter";
+}
+<div class="admin-toolbar">
+    <h1>Newsletter subscribers</h1>
+    <a class="btn btn-ghost" asp-action="Index">Back to coupons</a>
+</div>
+<table class="admin-table">
+    <thead><tr><th>Email</th><th>Subscribed</th><th>Active</th></tr></thead>
+    <tbody>
+    @foreach (var s in Model)
+    {
+        <tr>
+            <td>@s.Email</td>
+            <td>@s.SubscribedAt.ToLocalTime().ToString("g")</td>
+            <td>@s.IsActive</td>
+        </tr>
+    }
+    </tbody>
+</table>
+@if (!Model.Any())
+{
+    <p class="muted">No subscribers yet.</p>
+}

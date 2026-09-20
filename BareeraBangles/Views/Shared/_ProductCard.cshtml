@@ -1,0 +1,44 @@
+@model ProductCardViewModel
+@{
+    var store = StoreOptions.Value;
+}
+<article class="product-card" data-product-id="@Model.Id">
+    <a class="product-card-media" asp-controller="Product" asp-action="Details" asp-route-slug="@Model.Slug">
+        <img src="@Model.ImageUrl" alt="@Model.Name" loading="lazy" />
+        @if (Model.HasDiscount)
+        {
+            <span class="badge-sale">Sale</span>
+        }
+        @if (Model.AgeGroup == ProductAgeGroup.BabyKids)
+        {
+            <span class="badge-kids">Kids</span>
+        }
+    </a>
+    <button type="button" class="wish-btn" data-product-id="@Model.Id" aria-label="Toggle wishlist" title="Wishlist">♥</button>
+    <div class="product-card-body">
+        <p class="product-card-cat">@Model.CategoryName</p>
+        <h3><a asp-controller="Product" asp-action="Details" asp-route-slug="@Model.Slug">@Model.Name</a></h3>
+        <div class="price-row">
+            <span class="price">@store.CurrencySymbol @Model.EffectivePrice.ToString("N0")</span>
+            @if (Model.HasDiscount)
+            {
+                <span class="price-was">@store.CurrencySymbol @Model.Price.ToString("N0")</span>
+            }
+        </div>
+        <p class="size-chips">
+            @foreach (var size in Model.AvailableSizes.Take(4))
+            {
+                <span>@size</span>
+            }
+            @if (!Model.InStock)
+            {
+                <span class="out">Out of stock</span>
+            }
+        </p>
+        <div class="product-card-actions">
+            <button type="button" class="btn btn-ghost btn-sm quick-view-btn" data-id="@Model.Id">Quick View</button>
+            <button type="button" class="btn btn-ghost btn-sm compare-btn" data-product-id="@Model.Id">Compare</button>
+            <a class="btn btn-primary btn-sm" asp-controller="Product" asp-action="Details" asp-route-slug="@Model.Slug">Select Size</a>
+        </div>
+    </div>
+</article>

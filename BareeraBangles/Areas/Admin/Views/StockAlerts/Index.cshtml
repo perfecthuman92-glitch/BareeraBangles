@@ -1,0 +1,33 @@
+@model List<StockAlert>
+@{
+    ViewData["Title"] = "Stock Alerts";
+}
+<h1>Back-in-stock alerts</h1>
+@if (!Model.Any())
+{
+    <p class="muted">No pending alerts.</p>
+}
+else
+{
+    <table class="admin-table">
+        <thead><tr><th>Email</th><th>Product</th><th>Size</th><th>Requested</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var a in Model)
+        {
+            <tr>
+                <td>@a.Email</td>
+                <td>@a.Product?.Name</td>
+                <td>@(a.ProductSize?.Size ?? "Any")</td>
+                <td>@a.CreatedAt.ToLocalTime().ToString("g")</td>
+                <td>
+                    <form asp-action="MarkNotified" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@a.Id" />
+                        <button type="submit" class="linkish">Mark notified</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

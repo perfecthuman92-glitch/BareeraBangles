@@ -1,0 +1,244 @@
+@model ProductDetailsViewModel
+@{
+    var store = StoreOptions.Value;
+    var primary = Model.Images.FirstOrDefault(i => i.IsPrimary) ?? Model.Images.FirstOrDefault();
+    var adultSizes = Model.Sizes.Where(s => s.SizeCategory == SizeCategory.Adult || s.SizeCategory == SizeCategory.Unisex).ToList();
+    var kidsSizes = Model.Sizes.Where(s => s.SizeCategory == SizeCategory.BabyKids).ToList();
+}
+
+<section class="section product-details">
+    <div class="container product-details-grid">
+        <div class="gallery">
+            <div class="gallery-main zoom-wrap">
+                <img id="mainProductImage" src="@(primary?.ImageUrl ?? "/images/products/placeholder.svg")" alt="@(primary?.AltText ?? Model.Name)" />
+            </div>
+            <div class="gallery-thumbs">
+                @foreach (var img in Model.Images)
+                {
+                    <button type="button" class="thumb @(img.IsPrimary ? "active" : "")" data-src="@img.ImageUrl" aria-label="View image">
+                        <img src="@img.ImageUrl" alt="@img.AltText" />
+                    </button>
+                }
+            </div>
+        </div>
+
+        <div class="product-info">
+            <p class="eyebrow">@Model.CategoryName · @Model.AgeGroup</p>
+            <h1>@Model.Name</h1>
+            @if (Model.ReviewCount > 0)
+            {
+                <p class="rating-line">★ @Model.AverageRating <span class="muted">(@Model.ReviewCount review@(Model.ReviewCount == 1 ? "" : "s"))</span></p>
+            }
+            <div class="price-row large">
+                <span class="price">@store.CurrencySymbol @Model.EffectivePrice.ToString("N0")</span>
+                @if (Model.HasDiscount)
+                {
+                    <span class="price-was">@store.CurrencySymbol @Model.Price.ToString("N0")</span>
+                }
+            </div>
+            <p class="stock @(Model.InStock ? "in" : "out")">@(Model.InStock ? "In stock" : "Out of stock")</p>
+            <p class="desc">@Model.Description</p>
+            <p class="size-guide-link"><a asp-controller="Home" asp-action="SizeGuide">Unsure about size? View size guide</a></p>
+            <div class="share-row">
+                <button type="button" class="btn btn-ghost btn-sm" id="copyLinkBtn" data-url="">Copy link</button>
+                <a class="btn btn-ghost btn-sm" id="shareWhatsAppBtn" target="_blank" rel="noopener">Share on WhatsApp</a>
+                <button type="button" class="btn btn-ghost btn-sm compare-btn" data-product-id="@Model.Id">Compare</button>
+            </div>
+
+            <form id="addToCartForm" asp-controller="Cart" asp-action="Add" method="post" class="buy-form">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="ProductId" value="@Model.Id" />
+                <input type="hidden" name="ProductSizeId" id="selectedSizeId" value="" />
+
+                <fieldset class="size-fieldset">
+                    <legend>Select size <span class="req">*</span></legend>
+                    @if (adultSizes.Any())
+                    {
+                        <p class="size-group-label">Adult</p>
+                        <div class="size-options">
+                            @foreach (var size in adultSizes)
+                            {
+                                <button type="button" class="size-option @(size.StockQuantity < 1 ? "disabled" : "")"
+                                        data-size-id="@size.Id"
+                                        data-size-label="@size.Size"
+                                        data-stock="@size.StockQuantity"
+                                        @(size.StockQuantity < 1 ? "disabled" : null)>
+                                    <span>@size.Size</span>
+                                    @if (!string.IsNullOrEmpty(size.Measurement))
+                                    {
+                                        <small>@size.Measurement</small>
+                                    }
+                                </button>
+                            }
+                        </div>
+                    }
+                    @if (kidsSizes.Any())
+                    {
+                        <p class="size-group-label">Baby &amp; Kids</p>
+                        <div class="size-options">
+                            @foreach (var size in kidsSizes)
+                            {
+                                <button type="button" class="size-option @(size.StockQuantity < 1 ? "disabled" : "")"
+                                        data-size-id="@size.Id"
+                                        data-size-label="@size.Size"
+                                        data-stock="@size.StockQuantity"
+                                        @(size.StockQuantity < 1 ? "disabled" : null)>
+                                    <span>@size.Size</span>
+                                    @if (!string.IsNullOrEmpty(size.Measurement))
+                                    {
+                                        <small>@size.Measurement</small>
+                                    }
+                                </button>
+                            }
+                        </div>
+                    }
+                    <p class="size-feedback" id="sizeFeedback">Please select a size to continue.</p>
+                </fieldset>
+
+                <div class="qty-row">
+                    <label for="quantity">Quantity</label>
+                    <div class="qty-control">
+                        <button type="button" class="qty-btn" data-delta="-1">−</button>
+                        <input type="number" id="quantity" name="Quantity" value="1" min="1" max="99" />
+                        <button type="button" class="qty-btn" data-delta="1">+</button>
+                    </div>
+                </div>
+
+                <div class="action-row">
+                    <button type="submit" class="btn btn-primary btn-lg" id="addToCartBtn" disabled>Add to Cart</button>
+                    <button type="submit" class="btn btn-outline btn-lg" id="buyNowBtn" formaction="@Url.Action("Add", "Cart")" disabled name="buyNow" value="1">Buy Now</button>
+                </div>
+            </form>
+
+            <a class="btn btn-whatsapp w-100" id="whatsappOrderBtn"
+               asp-controller="WhatsApp" asp-action="Product" asp-route-id="@Model.Id"
+               target="_blank" rel="noopener">Order through WhatsApp</a>
+
+            <form asp-controller="StockAlert" asp-action="Notify" method="post" class="stock-alert-form">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="slug" value="@Model.Slug" />
+                <input type="hidden" name="ProductId" value="@Model.Id" />
+                <h3>Notify me when available</h3>
+                <p class="muted">Choose a size that’s low or out of stock.</p>
+                <select name="ProductSizeId">
+                    <option value="">Any size</option>
+                    @foreach (var size in Model.Sizes)
+                    {
+                        <option value="@size.Id">@size.Size (@size.StockQuantity left)</option>
+                    }
+                </select>
+                <input type="email" name="Email" placeholder="you@email.com" required />
+                <button type="submit" class="btn btn-outline w-100">Notify me</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+@if (Model.RelatedProducts.Any())
+{
+    <section class="section section-soft">
+        <div class="container">
+            <div class="section-head"><h2>You May Also Like</h2></div>
+            <div class="product-grid">
+                @foreach (var product in Model.RelatedProducts)
+                {
+                    <partial name="_ProductCard" model="product" />
+                }
+            </div>
+        </div>
+    </section>
+}
+
+<section class="section" id="reviews">
+    <div class="container narrow">
+        <div class="section-head">
+            <h2>Customer Reviews</h2>
+            <p>@(Model.ReviewCount > 0 ? $"Average {Model.AverageRating} / 5" : "Be the first to review this piece.")</p>
+        </div>
+
+        @foreach (var review in Model.Reviews)
+        {
+            <article class="review-card">
+                <div class="review-meta">
+                    <strong>@review.ReviewerName</strong>
+                    <span>★ @review.Rating/5</span>
+                    <span class="muted">@review.CreatedAt.ToLocalTime().ToString("d")</span>
+                </div>
+                <p>@review.Comment</p>
+            </article>
+        }
+
+        <form asp-action="Review" method="post" class="confirm-card review-form">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="slug" value="@Model.Slug" />
+            <input type="hidden" name="ProductId" value="@Model.Id" />
+            <h3>Write a review</h3>
+            <div class="form-grid">
+                <div>
+                    <label>Your name</label>
+                    <input name="ReviewerName" required maxlength="100" />
+                </div>
+                <div>
+                    <label>Rating</label>
+                    <select name="Rating">
+                        <option value="5">5 — Excellent</option>
+                        <option value="4">4 — Great</option>
+                        <option value="3">3 — Good</option>
+                        <option value="2">2 — Fair</option>
+                        <option value="1">1 — Poor</option>
+                    </select>
+                </div>
+                <div class="full">
+                    <label>Comment</label>
+                    <textarea name="Comment" rows="3" required maxlength="1000"></textarea>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit review</button>
+            <p class="muted">Reviews appear after admin approval.</p>
+        </form>
+    </div>
+</section>
+
+@if (Model.RecentlyViewed.Any())
+{
+    <section class="section">
+        <div class="container">
+            <div class="section-head"><h2>Recently Viewed</h2></div>
+            <div class="product-grid">
+                @foreach (var product in Model.RecentlyViewed)
+                {
+                    <partial name="_ProductCard" model="product" />
+                }
+            </div>
+        </div>
+    </section>
+}
+
+@section Scripts {
+<script>
+    window.bareeraProduct = {
+        id: @Model.Id,
+        whatsappBase: '@Url.Action("Product", "WhatsApp", new { id = Model.Id })'
+    };
+    (function () {
+        const url = window.location.href;
+        const copyBtn = document.getElementById('copyLinkBtn');
+        const wa = document.getElementById('shareWhatsAppBtn');
+        if (copyBtn) {
+            copyBtn.dataset.url = url;
+            copyBtn.addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(url);
+                    copyBtn.textContent = 'Copied!';
+                    setTimeout(() => copyBtn.textContent = 'Copy link', 1500);
+                } catch {
+                    copyBtn.textContent = 'Copy failed';
+                }
+            });
+        }
+        if (wa) {
+            wa.href = 'https://wa.me/?text=' + encodeURIComponent('Check out @Model.Name at Bareera Bangles: ' + url);
+        }
+    })();
+</script>
+}

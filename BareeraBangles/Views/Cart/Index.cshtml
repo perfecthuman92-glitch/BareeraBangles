@@ -1,0 +1,66 @@
+@model CartViewModel
+@{
+    var store = StoreOptions.Value;
+    ViewData["Title"] = "Your Cart";
+    var whatsappUrl = ViewBag.WhatsAppUrl as string;
+}
+
+<section class="page-hero">
+    <div class="container">
+        <h1>Your Cart</h1>
+        <p>@Model.TotalQuantity item(s)</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        @if (!Model.Items.Any())
+        {
+            <div class="empty-state">
+                <h2>Your cart is empty</h2>
+                <a class="btn btn-primary" asp-controller="Product" asp-action="Index">Continue Shopping</a>
+            </div>
+        }
+        else
+        {
+            <div class="cart-layout">
+                <div class="cart-items">
+                    @foreach (var item in Model.Items)
+                    {
+                        <article class="cart-item">
+                            <img src="@item.ImageUrl" alt="@item.ProductName" />
+                            <div>
+                                <h3><a asp-controller="Product" asp-action="Details" asp-route-slug="@item.ProductSlug">@item.ProductName</a></h3>
+                                <p>Size: <strong>@item.SelectedSize</strong></p>
+                                <p>@store.CurrencySymbol @item.UnitPrice.ToString("N0")</p>
+                                <form asp-controller="Cart" asp-action="Update" method="post" class="qty-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@item.Id" />
+                                    <button type="submit" name="quantity" value="@(item.Quantity - 1)">−</button>
+                                    <span>@item.Quantity</span>
+                                    <button type="submit" name="quantity" value="@(item.Quantity + 1)" @(item.Quantity >= item.MaxStock ? "disabled" : null)>+</button>
+                                </form>
+                            </div>
+                            <div class="cart-item-side">
+                                <p class="price">@store.CurrencySymbol @item.Subtotal.ToString("N0")</p>
+                                <form asp-controller="Cart" asp-action="Remove" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@item.Id" />
+                                    <button type="submit" class="btn btn-ghost btn-sm">Remove</button>
+                                </form>
+                            </div>
+                        </article>
+                    }
+                </div>
+                <aside class="cart-summary sticky-summary">
+                    <h2>Summary</h2>
+                    <div class="summary-row"><span>Items</span><span>@Model.TotalQuantity</span></div>
+                    <div class="summary-row total"><span>Grand Total</span><span>@store.CurrencySymbol @Model.GrandTotal.ToString("N0")</span></div>
+                    <a class="btn btn-primary w-100" asp-controller="Checkout" asp-action="Index">Proceed to Checkout</a>
+                    <a class="btn btn-whatsapp w-100" href="@whatsappUrl" target="_blank" rel="noopener">Order on WhatsApp</a>
+                    <a class="btn btn-ghost w-100" asp-controller="Product" asp-action="Index">Continue Shopping</a>
+                </aside>
+            </div>
+        }
+    </div>
+</section>
